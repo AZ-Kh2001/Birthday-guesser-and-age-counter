@@ -1,0 +1,183 @@
+
+
+from math import *
+from datetime import date
+
+months = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+
+monthsNames = ["Jan", "Fab", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+global dayOfBirth, monthOfBirth, yearOfBirth
+
+#dayOfBirth, monthOfBirth, yearOfBirth = 19, 11, 2001
+
+
+#-----------------------------------------------------#
+
+
+def guessBirth():
+	
+	#declaration of lists for days, months and years
+	daysSets = list()
+	monthsSets = list()
+	yearsSets = list()
+	
+	global dayOfBirth, monthOfBirth, yearOfBirth
+	
+	#makes sets for days, months and years
+	makeSets(daysSets, start = 1, end = 31)
+	makeSets(monthsSets, start = 1, end = 12)
+	makeSets(yearsSets, start = 1941, end = 2004)
+	
+	
+	#shows sets and take user's answers and returns them
+	dayOfBirth = showSets(daysSets, "birthday")
+	monthOfBirth = showSets(monthsSets, "birthmonth")
+	yearOfBirth = showSets(yearsSets, "birthyear")
+	
+	
+	
+	
+	
+	print("You was born in ", dayOfBirth, monthsNames[monthOfBirth - 1], yearOfBirth)
+	print()
+	
+	
+
+#-----------------------------------------------------#
+
+
+#makes sets in multidimintional lists
+def makeSets(sets, start, end):
+	
+	elementsPerSet = ceil((end - start + 1) / 2)
+	
+	powOfTwo = [2**x for x in range(ceil(log(elementsPerSet * 2, 2)))]
+	
+	max = end
+	
+	#looping through powOfTwo list
+	for i in powOfTwo:
+		
+		sets.append(list([i + start - 1]))
+		nextPowOfTwo = powOfTwo[powOfTwo.index(i)] * 2
+		
+		numOfOnes = i - 1
+		numToAdd = nextPowOfTwo - numOfOnes
+		
+		#looping through the inner sets to add number to
+		#them, without adding nums more than elementperset
+		j = i
+		while len(sets[int(log(i, 2))]) < elementsPerSet:
+			
+			#check if numOfOnes is bigger than 0, so we add 1
+			if numOfOnes > 0:
+					
+				j += 1
+				sets[int(log(i, 2))].append(j + start - 1)
+				numOfOnes -= 1
+				
+			#check if numOfOnes == 0 so we add numToAdd
+			elif numOfOnes == 0:
+					
+				j += numToAdd
+				sets[int(log(i, 2))].append(j + start - 1)
+				numOfOnes = i - 1
+				
+	
+	for i in range(len(sets)):
+		for j in range(len(sets[i])):
+			if sets[i][j] > end:
+				
+				sets[i][j] = "*"
+				
+
+
+#-----------------------------------------------------#
+
+
+#shows sets of days, months and years snd take user's
+#answers to return the guess of each sets
+def showSets(sets, birthName):
+	
+	birth = 0
+	answer = 0
+	numPerLine = ceil(sqrt(len(sets[0])))
+	line = ""
+	
+	for i in range(len(sets)):
+		
+		for j in range(len(sets[0])):
+			
+			if j + 1 == len(sets[0]):
+				#print(numPerLine)
+				
+				line += format(str(sets[i][j]), "10s")
+				line += format("*", "10s") * (numPerLine - 1)
+				line = line.strip()
+				print(format(line, "^50s"))
+				print()
+				numPerLine = ceil(sqrt(len(sets[0])))
+				line = ""
+			
+			else:
+				
+				line += format(str(sets[i][j]), "10s")
+				numPerLine -= 1
+			
+			if numPerLine == 0:
+				
+				line = line.strip()
+				print(format(line, "^50s"))
+				line = ""
+				print()
+				numPerLine = ceil(sqrt(len(sets[0])))
+				
+		
+		answer = eval(input(f"Enter 1 if your {birthName} in this set, 0 if not: "))
+		
+		if answer == 1:
+			birth += 2 ** i
+		print()
+		
+	birth += (sets[0][0] - 1)
+	return birth
+		
+#-----------------------------------------------------#
+
+
+def countAge(months, monthsNames):
+	
+	global dayOfBirth, monthOfBirth, yearOfBirth
+	
+	currentYear, currentMonth, currentDay = map(int, str(date.today()).split("-"))
+	
+	#count days
+	days = months[monthOfBirth] - dayOfBirth
+	days += currentDay
+	
+	#count months
+	months = 12 - monthOfBirth
+	months += currentMonth - 1
+	
+	#count years
+	years = (currentYear - yearOfBirth) - 1
+	
+	
+	if days >= 30:
+		months += 1
+		days -= 30
+		
+	if months >= 12:
+		years += 1
+		months -= 12
+		
+	print(f"You are, {years} years, {months}, months, {days} days!")
+	
+
+#-----------------------------------------------------#
+
+
+guessBirth()
+countAge(months, monthsNames)
+
